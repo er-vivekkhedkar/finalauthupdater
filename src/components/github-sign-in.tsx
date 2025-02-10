@@ -1,21 +1,33 @@
-import { signIn } from "@/lib/auth";
+'use client';
+import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Github } from "@/components/ui/github";
+import { handleGithubSignIn } from "@/lib/actions";
+import { useFormStatus } from "react-dom";
 
-const GithubSignIn = () => {
+const GithubButton = () => {
+  const { pending } = useFormStatus();
+  
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn("github");
-      }}
-    >
-      <Button className="w-full" variant="outline">
-        <Github />
-        Continue with GitHub
-      </Button>
+    <Button type="submit" variant="outline" className="w-full" disabled={pending}>
+      {pending ? (
+        <>
+          <span className="loading loading-spinner loading-sm mr-2"></span>
+          Connecting...
+        </>
+      ) : (
+        <>
+          <Github className="mr-2 h-4 w-4" />
+          Sign in with Github
+        </>
+      )}
+    </Button>
+  );
+}
+
+export function GithubSignIn() {
+  return (
+    <form action={handleGithubSignIn}>
+      <GithubButton />
     </form>
   );
-};
-
-export { GithubSignIn };
+}
