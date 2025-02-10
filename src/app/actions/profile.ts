@@ -2,15 +2,22 @@
 
 import { updateProfile } from "@/lib/actions";
 
-export async function handleProfileUpdate(data: FormData) {
-  const profileData = {
-    fullName: data.get('fullName') as string,
-    email: data.get('email') as string,
-    dob: data.get('dob') as string,
-    gender: data.get('gender') as string,
-    bio: data.get('bio') as string,
-    image: data.get('image') as string,
-  };
+export async function handleProfileUpdate(profileData: {
+  fullName: string;
+  email: string;
+  dob: string;
+  gender: string;
+  bio: string;
+  image: string;
+}) {
+  const formData = new FormData();
   
-  return updateProfile(profileData);
+  formData.append('fullName', profileData.fullName);
+  formData.append('email', profileData.email);
+  formData.append('dob', profileData.dob);
+  formData.append('gender', profileData.gender);
+  formData.append('bio', profileData.bio);
+  formData.append('image', profileData.image);
+
+  return updateProfile(formData);
 } 
