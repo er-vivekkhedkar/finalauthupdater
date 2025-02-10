@@ -28,9 +28,9 @@ export function SignUpForm() {
         toast("Account created successfully! Please sign in.");
         window.location.href = '/sign-in';
       } else {
-        toast(res.message || "Something went wrong");
+        toast(res.message ?? "Something went wrong");
       }
-    } catch (error) {
+    } catch {
       toast("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);

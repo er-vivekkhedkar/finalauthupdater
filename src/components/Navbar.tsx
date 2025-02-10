@@ -1,5 +1,5 @@
 import { SignOut } from "./sign-out";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 import Link from "next/link";
 
 interface NavbarProps {

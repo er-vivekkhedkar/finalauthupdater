@@ -23,7 +23,11 @@ const Page = async () => {
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Your Profile</h2>
             <p className="text-gray-600">Update your information and manage your account settings.</p>
           </div>
-          <ProfileUpdater initialUser={user} />
+          {user ? (
+            <ProfileUpdater initialUser={user} />
+          ) : (
+            redirect("/sign-in")
+          )}
         </div>
       </main>
 

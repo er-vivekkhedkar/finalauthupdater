@@ -1,10 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { User } from "lucide-react"
+// import * as z from "zod"
+import { User as UserIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -14,40 +12,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
 import { handleProfileUpdate } from "@/app/actions/profile"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getUserProfile } from "@/lib/actions"
+
+
 import { compressImage } from "@/lib/utils"
+import type { User, Profile } from "@prisma/client"
 
-const profileSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  dob: z.string().refine((date) => new Date(date) < new Date(), "Date of birth must be in the past"),
-  gender: z.enum(["male", "female", "other", "prefer-not-to-say"]),
-  bio: z.string().max(500, "Bio must be 500 characters or less"),
-  image: z.string().optional(),
-})
+// const profileSchema = z.object({
+//   fullName: z.string().min(2, "Full name must be at least 2 characters"),
+//   email: z.string().email("Invalid email address"),
+//   dob: z.string().refine((date) => new Date(date) < new Date(), "Date of birth must be in the past"),
+//   gender: z.enum(["male", "female", "other", "prefer-not-to-say"]),
+//   bio: z.string().max(500, "Bio must be 500 characters or less"),
+//   image: z.string().optional(),
+// })
 
-type ProfileFormValues = z.infer<typeof profileSchema>
+// type ProfileFormValues = z.infer<typeof profileSchema>
 
 interface ProfileFormProps {
-  initialUser: any;
+  initialUser: User & {
+    profile?: Profile | null;
+    image?: string | null;
+    name?: string | null;
+    email?: string | null;
+  };
 }
 
 export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -114,9 +109,9 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
             {/* Profile Image Section */}
             <div className="mb-8 flex flex-col items-center space-y-4">
               <Avatar className="w-32 h-32">
-                <AvatarImage src={profileImage || initialUser?.image} />
+                <AvatarImage src={profileImage ?? initialUser?.image ?? ''} />
                 <AvatarFallback>
-                  <User className="w-16 h-16" />
+                  <UserIcon className="w-16 h-16" />
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-center space-y-2">
@@ -126,7 +121,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   onChange={handleImageChange}
                   className="w-full max-w-xs"
                 />
-                <input type="hidden" name="image" value={profileImage || initialUser?.image || ''} />
+                <input type="hidden" name="image" value={profileImage ?? initialUser?.image ?? ''} />
                 <p className="text-sm text-muted-foreground">
                   Recommended: Square image, at least 400x400px
                 </p>
@@ -141,7 +136,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   <Input 
                     id="fullName"
                     name="fullName" 
-                    defaultValue={initialUser?.name || ''} 
+                    defaultValue={initialUser?.name ?? ''} 
                     placeholder="John Doe"
                   />
                 </div>
@@ -150,7 +145,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   <Input 
                     id="email"
                     name="email" 
-                    defaultValue={initialUser?.email || ''} 
+                    defaultValue={initialUser?.email ?? ''} 
                     placeholder="john@example.com"
                   />
                 </div>
@@ -160,12 +155,12 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                     id="dob"
                     name="dob" 
                     type="date"
-                    defaultValue={initialUser?.profile?.dateOfBirth?.toISOString().split('T')[0] || ''} 
+                    defaultValue={initialUser?.profile?.dateOfBirth?.toISOString().split('T')[0] ?? ''} 
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender</Label>
-                  <Select name="gender" defaultValue={initialUser?.profile?.gender || ''}>
+                  <Select name="gender" defaultValue={initialUser?.profile?.gender ?? ''}>
                     <SelectTrigger id="gender">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -184,7 +179,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                 <Textarea 
                   id="bio"
                   name="bio" 
-                  defaultValue={initialUser?.profile?.bio || ''} 
+                  defaultValue={initialUser?.profile?.bio ?? ''} 
                   placeholder="Tell us about yourself..."
                   className="min-h-[120px]"
                 />

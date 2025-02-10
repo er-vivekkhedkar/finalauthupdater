@@ -6,9 +6,10 @@ import { executeAction } from "@/lib/executeAction";
 import { signIn } from "@/lib/auth";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import type { User } from "@prisma/client";
 
 // Move schema to a separate file
-const validateProfile = async (data: any) => {
+const validateProfile = async (data: Record<string, unknown>) => {
   const profileSchema = z.object({
     fullName: z.string().min(2),
     email: z.string().email(),
@@ -50,7 +51,7 @@ export async function handleGithubSignIn() {
   await signIn("github");
 }
 
-export async function updateProfile(data: any) {
+export async function updateProfile(data: Record<string, unknown>) {
   return executeAction({
     actionFn: async () => {
       const session = await auth();
@@ -97,4 +98,44 @@ export async function getUserProfile() {
   });
 
   return user;
+}
+
+interface UpdateUserData {
+  name?: string;
+  email?: string;
+  image?: string;
+  profile?: {
+    upsert?: {
+      create: {
+        dateOfBirth: Date;
+        gender: string;
+        bio: string;
+      };
+      update: {
+        dateOfBirth: Date;
+        gender: string;
+        bio: string;
+      };
+    };
+  };
+}
+
+export async function updateUserProfile(data: UpdateUserData): Promise<User> {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Not authenticated");
+
+  return await db.user.update({
+    where: { email: session.user.email },
+    data: {
+      name: data.name,
+      email: data.email,
+      image: data.image,
+      profile: data.profile
+    }
+  });
+}
+
+// Remove unused parameters or prefix with underscore
+export async function someFunction(_data: UpdateUserData) {
+  // Your logic
 }
