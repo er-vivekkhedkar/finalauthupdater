@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/hooks/use-toast"
-import { handleProfileUpdate } from "@/app/actions/profile"
+import { toast } from "sonner"
+import { updateProfile } from "@/lib/actions"
 // import { useRouter } from "next/navigation"
 
 
@@ -61,11 +61,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
         reader.readAsDataURL(compressedFile);
       } catch (error) {
         console.error("Error compressing image:", error);
-        toast({
-          title: "Error",
-          description: "Error processing image. Please try a smaller file.",
-          variant: "destructive",
-        });
+        toast.error("Error processing image. Please try a smaller file.");
       }
     }
   };
@@ -75,20 +71,19 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const formData = new FormData(e.currentTarget);
 
     try {
-      await handleProfileUpdate(formData);
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
+      const result = await updateProfile(formData);
+      if (result.success) {
+        toast.success("Profile updated successfully");
+        // Optionally refresh the page or update the UI
+        window.location.reload();
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      });
+      toast.error("Failed to update profile");
       console.error(error);
     } finally {
       setIsSubmitting(false);

@@ -14,29 +14,29 @@ import { Separator } from "@/components/ui/separator";
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isLoading) return;
-
     setIsLoading(true);
-    const formData = new FormData(e.currentTarget);
     
-    signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      callbackUrl: "/",
-      redirect: false,
-    }).then((response) => {
-      if (response?.error) {
-        toast("Account not found. Please sign up first.");
-      } else if (response?.ok) {
+    try {
+      const formData = new FormData(e.currentTarget);
+      const res = await signIn("credentials", {
+        email: formData.get("email"),
+        password: formData.get("password"),
+        redirect: false,
+      });
+
+      if (res?.error) {
+        toast.error(res.error);
+      } else if (res?.ok) {
         window.location.href = "/";
       }
-    }).catch(() => {
-      toast("Something went wrong. Please try again.");
-    }).finally(() => {
+    } catch (error) {
+      console.error("Sign in error:", error);
+      toast.error("Failed to sign in. Please try again.");
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   return (

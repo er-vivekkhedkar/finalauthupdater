@@ -13,7 +13,10 @@ const adapter = PrismaAdapter(db);
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter,
   providers: [
-    GitHub, // Use the correct provider name
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID!,
+      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+    }),
     Credentials({
       credentials: {
         email: {},
@@ -37,12 +40,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  pages: {
+    signIn: '/sign-in',
+    signOut: '/sign-out',
+    error: '/error', // Error code passed in query string as ?error=
+  },
   callbacks: {
     async jwt({ token, account }) {
       if (account?.provider === "credentials") {
         token.credentials = true;
       }
       return token;
+    },
+    async session({ session, token }) {
+      return session;
     },
   },
   jwt: {
