@@ -76,5 +76,12 @@
   "ct3aMetadata": {
     "initVersion": "7.38.1"
   },
-  "packageManager": "npm@10.9.2"
+  "packageManager": "npm@10.9.2",
+  "resolutions": {
+    "glob": "^10.0.0",
+    "@eslint/config-array": "^2.0.0",
+    "@eslint/object-schema": "^2.0.0",
+    "eslint": "^9.0.0",
+    "lru-cache": "^10.0.0"
+  }
 }

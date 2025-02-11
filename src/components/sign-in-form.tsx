@@ -40,8 +40,8 @@ export function SignInForm() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Card className="w-full max-w-lg">
+    <div className="flex min-h-screen w-full items-center justify-center px-4 py-10">
+      <Card className="w-full max-w-lg mx-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
           <CardDescription className="text-center">

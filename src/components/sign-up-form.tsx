@@ -38,8 +38,11 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Card className="w-full max-w-lg">
+    <div 
+      className="flex min-h-screen w-full items-center justify-center px-4 py-10"
+      suppressHydrationWarning={true}
+    >
+      <Card className="w-full max-w-lg mx-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
           <CardDescription className="text-center">
