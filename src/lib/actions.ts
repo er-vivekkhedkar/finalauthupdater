@@ -179,7 +179,7 @@ export async function updateUserProfile(data: UpdateUserData): Promise<User> {
   return await db.user.update({
     where: { email: session.user.email },
     data: {
-      name: data.name,
+      fullName: data.name,
       email: data.email,
       image: data.image,
       profile: data.profile
