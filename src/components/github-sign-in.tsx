@@ -1,19 +1,47 @@
 'use client';
 import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { handleGithubSignIn } from "@/lib/actions";
-import { useFormStatus } from "react-dom";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-const GithubButton = () => {
-  const { pending } = useFormStatus();
-  
+export function GithubSignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleGithubSignIn = async () => {
+    try {
+      setIsLoading(true);
+      const result = await signIn("github", { 
+        callbackUrl: "/",
+        redirect: false,
+      });
+      
+      if (result?.error) {
+        toast.error("Failed to sign in with GitHub");
+      } else if (result?.ok) {
+        toast.success("Signed in successfully!");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("GitHub sign in error:", error);
+      toast.error("Failed to sign in with GitHub");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Button type="submit" variant="outline" className="w-full" disabled={pending}>
-      {pending ? (
-        <>
-          <span className="loading loading-spinner loading-sm mr-2"></span>
-          Connecting...
-        </>
+    <Button 
+      variant="outline" 
+      onClick={handleGithubSignIn}
+      disabled={isLoading}
+      className="w-full"
+    >
+      {isLoading ? (
+        "Connecting..."
       ) : (
         <>
           <Github className="mr-2 h-4 w-4" />
@@ -21,13 +49,5 @@ const GithubButton = () => {
         </>
       )}
     </Button>
-  );
-}
-
-export function GithubSignIn() {
-  return (
-    <form action={handleGithubSignIn}>
-      <GithubButton />
-    </form>
   );
 }
