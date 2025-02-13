@@ -10,9 +10,19 @@ import { Label } from "@/components/ui/label";
 import { GithubIcon } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const verified = searchParams.get('verified');
+
+  useEffect(() => {
+    if (verified === 'true') {
+      toast.success('Email verified successfully! Please sign in.');
+    }
+  }, [verified]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,14 +31,16 @@ export function SignInForm() {
     try {
       const formData = new FormData(e.currentTarget);
       const res = await signIn("credentials", {
-        email: formData.get("email"),
+        email: formData.get("email")?.toString().toLowerCase(),
         password: formData.get("password"),
         redirect: false,
+        callbackUrl: "/"
       });
 
       if (res?.error) {
-        toast.error(res.error);
+        toast.error("Invalid email or password");
       } else if (res?.ok) {
+        toast.success("Signed in successfully!");
         window.location.href = "/";
       }
     } catch (error) {

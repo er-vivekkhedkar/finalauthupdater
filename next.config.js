@@ -9,7 +9,7 @@ const nextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb'
-    }
+    },
   },
   images: {
     remotePatterns: [
@@ -20,6 +20,28 @@ const nextConfig = {
     ],
     domains: ['avatars.githubusercontent.com'],
   },
-}
+  headers: async () => {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Connection',
+            value: 'keep-alive'
+          }
+        ],
+      },
+    ]
+  },
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      "mock-aws-s3": false,
+      "nock": false,
+      "aws-sdk": false,
+    };
+    return config;
+  },
+};
 
 export default nextConfig

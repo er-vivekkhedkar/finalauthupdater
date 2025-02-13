@@ -1,12 +1,14 @@
 'use server';
 
 import { schema } from "@/lib/schema";
-import db from "@/lib/db/db";
+import { db } from "@/server/db";
 import { executeAction } from "@/lib/executeAction";
 import { signIn } from "@/lib/auth";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import type { User } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 
 // Move schema to a separate file
 const validateProfile = async (data: Record<string, unknown>) => {
@@ -25,15 +27,42 @@ const validateProfile = async (data: Record<string, unknown>) => {
 export async function signUp(formData: FormData) {
   return executeAction({
     actionFn: async () => {
-      const email = formData.get("email");
-      const password = formData.get("password");
-      const validatedData = schema.parse({ email, password });
-      await db.user.create({
-        data: {
-          email: validatedData.email.toLocaleLowerCase(),
-          password: validatedData.password,
-        },
-      });
+      try {
+        const email = formData.get("email");
+        const password = formData.get("password");
+        
+        if (!email || !password) {
+          return { success: false, message: "Missing email or password" };
+        }
+
+        const validatedData = schema.parse({ email, password });
+
+        const existingUser = await db.user.findUnique({
+          where: { email: validatedData.email.toLowerCase() }
+        });
+
+        if (existingUser) {
+          return { success: false, message: "Email already registered" };
+        }
+
+        const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
+        // Create user
+        const user = await db.user.create({
+          data: {
+            email: validatedData.email.toLowerCase(),
+            password: hashedPassword,
+          },
+        });
+
+        return { success: true, message: "Account created successfully" };
+      } catch (error) {
+        console.error("SignUp error:", error);
+        return { 
+          success: false, 
+          message: "Failed to create account. Please try again." 
+        };
+      }
     },
     successMessage: "Signed up successfully",
   });
@@ -56,32 +85,43 @@ export async function updateProfile(formData: FormData) {
     const session = await auth();
     if (!session?.user?.email) throw new Error("Not authenticated");
 
-    // Get form data
-    const data = {
-      name: formData.get('fullName') as string,
-      email: formData.get('email') as string,
-      image: formData.get('image') as string,
-      profile: {
-        upsert: {
-          create: {
-            dateOfBirth: new Date(formData.get('dob') as string),
-            gender: formData.get('gender') as string,
-            bio: formData.get('bio') as string,
-          },
-          update: {
-            dateOfBirth: new Date(formData.get('dob') as string),
-            gender: formData.get('gender') as string,
-            bio: formData.get('bio') as string,
-          },
-        },
-      },
-    };
+    const fullName = formData.get('fullName') as string;
+    const email = formData.get('email') as string;
+    const image = formData.get('image') as string;
+    const dob = formData.get('dob') as string;
+    const gender = formData.get('gender') as string;
+    const bio = formData.get('bio') as string;
 
-    // Update user and profile
+    if (!fullName || !email) {
+      return { success: false, error: "Required fields are missing" };
+    }
+
     const updatedUser = await db.user.update({
-      where: { email: session.user.email },
-      data: data,
-      include: { profile: true },
+      where: { 
+        email: session.user.email 
+      },
+      data: {
+        fullName,
+        email,
+        image,
+        profile: {
+          upsert: {
+            create: {
+              dateOfBirth: dob ? new Date(dob) : new Date(),
+              gender: gender || 'prefer-not-to-say',
+              bio: bio || ''
+            },
+            update: {
+              dateOfBirth: dob ? new Date(dob) : new Date(),
+              gender: gender || 'prefer-not-to-say',
+              bio: bio || ''
+            }
+          }
+        }
+      },
+      include: {
+        profile: true
+      }
     });
 
     return { success: true, data: updatedUser };
@@ -97,8 +137,12 @@ export async function getUserProfile() {
     if (!session?.user?.email) return null;
 
     const user = await db.user.findUnique({
-      where: { email: session.user.email },
-      include: { profile: true },
+      where: { 
+        email: session.user.email 
+      },
+      include: {
+        profile: true
+      }
     });
 
     return user;

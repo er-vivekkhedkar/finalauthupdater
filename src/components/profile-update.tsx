@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 // import * as z from "zod"
 import { User as UserIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { updateProfile } from "@/lib/actions"
+import { updateProfile, getUserProfile } from "@/lib/actions"
 // import { useRouter } from "next/navigation"
 
 
@@ -39,10 +39,37 @@ interface ProfileFormProps {
   };
 }
 
-export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
+export default function ProfileUpdate() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const router = useRouter();
+  const [userData, setUserData] = useState({
+    fullName: '',
+    email: '',
+    dob: '',
+    gender: 'prefer-not-to-say',
+    bio: '',
+    image: '',
+  });
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    const user = await getUserProfile();
+    if (user) {
+      const data = {
+        fullName: user.fullName || '',
+        email: user.email || '',
+        dob: user.profile?.dateOfBirth?.toISOString().split('T')[0] || '',
+        gender: user.profile?.gender || 'prefer-not-to-say',
+        bio: user.profile?.bio || '',
+        image: user.image || '',
+      };
+      setUserData(data);
+      setProfileImage(user.image);
+    }
+  };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,25 +93,51 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
     }
   };
 
+  const handleChange = (field: string, value: string) => {
+    setUserData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData();
+    
+    formData.append('fullName', userData.fullName);
+    formData.append('email', userData.email);
+    formData.append('dob', userData.dob);
+    formData.append('gender', userData.gender);
+    formData.append('bio', userData.bio);
+    
+    if (profileImage) {
+      formData.append('image', profileImage);
+    }
 
     try {
       const result = await updateProfile(formData);
-      if (result.success) {
+      if (result.success && result.data) {
         toast.success("Profile updated successfully");
-        // Optionally refresh the page or update the UI
-        window.location.reload();
+        setUserData(prev => ({
+          ...prev,
+          fullName: result.data.fullName || '',
+          email: result.data.email || '',
+          dob: result.data.profile?.dateOfBirth?.toISOString().split('T')[0] || '',
+          gender: result.data.profile?.gender || 'prefer-not-to-say',
+          bio: result.data.profile?.bio || '',
+          image: result.data.image || '',
+        }));
+        if (result.data.image) {
+          setProfileImage(result.data.image);
+        }
       } else {
-        throw new Error(result.error);
+        toast.error(result.error || "Failed to update profile");
       }
     } catch (error) {
       toast.error("Failed to update profile");
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +157,7 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
             {/* Profile Image Section */}
             <div className="mb-8 flex flex-col items-center space-y-4">
               <Avatar className="w-32 h-32">
-                <AvatarImage src={profileImage ?? initialUser?.image ?? ''} />
+                <AvatarImage src={profileImage || userData.image} />
                 <AvatarFallback>
                   <UserIcon className="w-16 h-16" />
                 </AvatarFallback>
@@ -116,7 +169,6 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   onChange={handleImageChange}
                   className="w-full max-w-xs"
                 />
-                <input type="hidden" name="image" value={profileImage ?? initialUser?.image ?? ''} />
                 <p className="text-sm text-muted-foreground">
                   Recommended: Square image, at least 400x400px
                 </p>
@@ -131,7 +183,8 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   <Input 
                     id="fullName"
                     name="fullName" 
-                    defaultValue={initialUser?.name ?? ''} 
+                    value={userData.fullName}
+                    onChange={(e) => handleChange('fullName', e.target.value)}
                     placeholder="John Doe"
                   />
                 </div>
@@ -140,7 +193,8 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                   <Input 
                     id="email"
                     name="email" 
-                    defaultValue={initialUser?.email ?? ''} 
+                    value={userData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
                     placeholder="john@example.com"
                   />
                 </div>
@@ -150,12 +204,17 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                     id="dob"
                     name="dob" 
                     type="date"
-                    defaultValue={initialUser?.profile?.dateOfBirth?.toISOString().split('T')[0] ?? ''} 
+                    value={userData.dob}
+                    onChange={(e) => handleChange('dob', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender</Label>
-                  <Select name="gender" defaultValue={initialUser?.profile?.gender ?? ''}>
+                  <Select 
+                    name="gender" 
+                    value={userData.gender}
+                    onValueChange={(value) => handleChange('gender', value)}
+                  >
                     <SelectTrigger id="gender">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -174,7 +233,8 @@ export default function ProfileUpdate({ initialUser }: ProfileFormProps) {
                 <Textarea 
                   id="bio"
                   name="bio" 
-                  defaultValue={initialUser?.profile?.bio ?? ''} 
+                  value={userData.bio}
+                  onChange={(e) => handleChange('bio', e.target.value)}
                   placeholder="Tell us about yourself..."
                   className="min-h-[120px]"
                 />

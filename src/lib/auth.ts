@@ -1,83 +1,116 @@
 import { v4 as uuid } from "uuid";
-import { encode as defaultEncode } from "next-auth/jwt";
-
-import db from "@/lib/db/db";
+import bcrypt from "bcryptjs";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import GitHub from "next-auth/providers/github"; // Ensure consistent import
-import { schema } from "@/lib/schema";
+import GitHub from "next-auth/providers/github";
+import { db } from "@/server/db";
+import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import jwt from 'jsonwebtoken';
 
-const adapter = PrismaAdapter(db);
+interface ExtendedUser {
+  id: string;
+  email: string | null;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+interface ExtendedSession extends Session {
+  accessToken?: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
+interface ExtendedJWT extends JWT {
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+export const generateTokens = (userId: string) => {
+  const accessToken = jwt.sign(
+    { userId },
+    process.env.NEXTAUTH_SECRET!,
+    { expiresIn: '15m' }
+  );
+  
+  const refreshToken = jwt.sign(
+    { userId },
+    process.env.NEXTAUTH_SECRET!,
+    { expiresIn: '7d' }
+  );
+
+  return { accessToken, refreshToken };
+};
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter,
+  adapter: PrismaAdapter(db),
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  },
   providers: [
-    GitHub({
-      clientId: process.env.AUTH_GITHUB_ID!,
-      clientSecret: process.env.AUTH_GITHUB_SECRET!,
-    }),
     Credentials({
       credentials: {
-        email: {},
-        password: {},
+        email: { type: "email" },
+        password: { type: "password" }
       },
-      authorize: async (credentials) => {
-        const validatedCredentials = schema.parse(credentials);
+      async authorize(credentials: Partial<Record<"email" | "password", unknown>>, req: Request) {
+        try {
+          if (!credentials?.email || !credentials?.password) return null;
+          
+          const user = await db.user.findUnique({
+            where: { email: credentials.email.toString().toLowerCase() }
+          });
 
-        const user = await db.user.findFirst({
-          where: {
-            email: validatedCredentials.email,
-            password: validatedCredentials.password,
-          },
-        });
+          if (!user?.password) return null;
 
-        if (!user) {
-          throw new Error("Invalid credentials.");
+          const passwordMatch = await bcrypt.compare(
+            credentials.password.toString(),
+            user.password
+          );
+
+          if (passwordMatch) {
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
         }
-
-        return user;
-      },
+      }
     }),
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    })
   ],
-  pages: {
-    signIn: '/sign-in',
-    signOut: '/sign-out',
-    error: '/error', // Error code passed in query string as ?error=
-  },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account?.provider === "credentials") {
-        token.credentials = true;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
-      return session;
-    },
-  },
-  jwt: {
-    encode: async function (params) {
-      if (params.token?.credentials) {
-        const sessionToken = uuid();
-
-        if (!params.token.sub) {
-          throw new Error("No user ID found in token");
-        }
-
-        const createdSession = await adapter?.createSession?.({
-          sessionToken: sessionToken,
-          userId: params.token.sub,
-          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });
-
-        if (!createdSession) {
-          throw new Error("Failed to create session");
-        }
-
-        return sessionToken;
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
       }
-      return defaultEncode(params);
-    },
+      return session;
+    }
+  },
+  pages: {
+    signIn: '/sign-in',
+    signOut: '/sign-out',
+    error: '/error',
   },
 });
