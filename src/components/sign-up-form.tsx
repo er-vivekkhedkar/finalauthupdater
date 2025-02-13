@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { VerificationForm } from "@/components/verification-form";
 
 export function SignUpForm() {
-  const router = useRouter();
+  // const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({

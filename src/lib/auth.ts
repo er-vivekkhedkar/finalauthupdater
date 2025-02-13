@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+// import { v4 as uuid } from "uuid";
 import bcrypt from "bcryptjs";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
@@ -9,25 +9,25 @@ import { Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import jwt from 'jsonwebtoken';
 
-interface ExtendedUser {
-  id: string;
-  email: string | null;
-  accessToken?: string;
-  refreshToken?: string;
-}
+// interface ExtendedUser {
+//   id: string;
+//   email: string | null;
+//   accessToken?: string;
+//   refreshToken?: string;
+// }
 
-interface ExtendedSession extends Session {
-  accessToken?: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
+// interface ExtendedSession extends Session {
+//   accessToken?: string;
+//   user: {
+//     id: string;
+//     email: string;
+//   };
+// }
 
-interface ExtendedJWT extends JWT {
-  accessToken?: string;
-  refreshToken?: string;
-}
+// interface ExtendedJWT extends JWT {
+//   accessToken?: string;
+//   refreshToken?: string;
+// }
 
 export const generateTokens = (userId: string) => {
   const accessToken = jwt.sign(

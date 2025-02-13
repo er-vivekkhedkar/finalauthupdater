@@ -17,7 +17,7 @@ import { updateProfile, getUserProfile } from "@/lib/actions"
 
 
 import { compressImage } from "@/lib/utils"
-import type { User, Profile } from "@prisma/client"
+import type { User } from "@prisma/client"
 
 // const profileSchema = z.object({
 //   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -30,16 +30,19 @@ import type { User, Profile } from "@prisma/client"
 
 // type ProfileFormValues = z.infer<typeof profileSchema>
 
-interface ProfileFormProps {
+interface ProfileUpdaterProps {
   initialUser: User & {
-    profile?: Profile | null;
-    image?: string | null;
-    name?: string | null;
-    email?: string | null;
+    profile: {
+      id: string;
+      dateOfBirth: Date;
+      gender: string;
+      bio: string;
+      userId: string;
+    } | null;
   };
 }
 
-export default function ProfileUpdate() {
+export default function ProfileUpdater({ initialUser }: ProfileUpdaterProps) {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState({
