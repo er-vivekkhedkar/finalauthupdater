@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-// import * as z from "zod"
 import { User as UserIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -12,23 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { updateProfile, getUserProfile } from "@/lib/actions"
-// import { useRouter } from "next/navigation"
-
 
 
 import { compressImage } from "@/lib/utils"
 import type { User } from "@prisma/client"
 
-// const profileSchema = z.object({
-//   fullName: z.string().min(2, "Full name must be at least 2 characters"),
-//   email: z.string().email("Invalid email address"),
-//   dob: z.string().refine((date) => new Date(date) < new Date(), "Date of birth must be in the past"),
-//   gender: z.enum(["male", "female", "other", "prefer-not-to-say"]),
-//   bio: z.string().max(500, "Bio must be 500 characters or less"),
-//   image: z.string().optional(),
-// })
-
-// type ProfileFormValues = z.infer<typeof profileSchema>
 
 interface ProfileUpdaterProps {
   initialUser: User & {

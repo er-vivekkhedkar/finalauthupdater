@@ -88,7 +88,7 @@ export function SignUpForm() {
   return (
     <>
       {!showVerificationForm ? (
-        <div className="container flex items-center justify-center min-h-screen">
+        <div className="flex min-h-screen w-full items-center justify-center px-4 py-10">
           <Card className="w-full max-w-md mx-auto">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
