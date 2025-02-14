@@ -15,11 +15,8 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_APP_URL;
-    
-  const verificationUrl = `${baseUrl}/api/auth/verify?token=${token}`;
+  // Always use your domain URL, not Vercel's URL
+  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify?token=${token}`;
   
   const mailOptions = {
     from: `"Auth Verification" <${process.env.EMAIL_USER}>`,
