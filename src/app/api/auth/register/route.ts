@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db/db";
-import { pendingUsers } from "@/lib/pending-users";
+import { createPendingUser } from '@/lib/pending-users';
 import { sendVerificationEmail } from '@/lib/email-service';
 
 export async function POST(req: Request) {
@@ -21,25 +21,22 @@ export async function POST(req: Request) {
       });
     }
 
-    // Generate random 6-digit code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Store pending user data
-    pendingUsers.set(lowerEmail, {
+    
+    // Create pending user and get verification token
+    const token = await createPendingUser({
       email: lowerEmail,
       password: hashedPassword,
-      fullName,
-      verificationCode,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+      fullName
     });
 
     // Send verification email
-    await sendVerificationEmail(email, verificationCode);
+    await sendVerificationEmail(lowerEmail, token);
 
-    console.log('Pending users after registration:', pendingUsers); // Debug log
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      message: "Verification email sent" 
+    });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json({ 

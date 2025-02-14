@@ -8,6 +8,7 @@ import { db } from "@/server/db";
 // import { Session } from "next-auth";
 // import { JWT } from "next-auth/jwt";
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 // interface ExtendedUser {
 //   id: string;
@@ -178,3 +179,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/error',
   },
 });
+
+export function generateVerificationToken(): string {
+  return uuidv4();
+}

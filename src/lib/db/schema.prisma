@@ -152,3 +152,16 @@ model Activity {
 
   @@map("activities")
 }
+
+model PendingUser {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  fullName          String
+  verificationToken String   @unique
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+
+  @@index([verificationToken])
+  @@map("pending_users")
+}

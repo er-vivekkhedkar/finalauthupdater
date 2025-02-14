@@ -1,63 +1,56 @@
 // This file handles verification code validation
 import { NextResponse } from "next/server";
+import { getPendingUserByToken } from "@/lib/pending-users";
 import { db } from "@/lib/db/db";
-import { pendingUsers } from "@/lib/pending-users";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const { email, code } = await req.json();
-    const lowerEmail = email.toLowerCase();
-    
-    console.log('Verifying:', { email: lowerEmail, code }); // Debug log
-    console.log('Pending users:', pendingUsers); // Debug log
-    
-    const pendingUser = pendingUsers.get(lowerEmail);
-    console.log('Found pending user:', pendingUser); // Debug log
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get('token');
+
+    if (!token) {
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=invalid-token`
+      );
+    }
+
+    const pendingUser = await getPendingUserByToken(token);
 
     if (!pendingUser) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "No pending verification found" 
-      });
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=invalid-token`
+      );
     }
 
-    if (pendingUser.verificationCode !== code) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "Invalid verification code" 
-      });
+    // Check if user already exists and is verified
+    const existingUser = await db.user.findUnique({
+      where: { email: pendingUser.email }
+    });
+
+    if (existingUser?.emailVerified) {
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=already-verified`
+      );
     }
 
-    if (pendingUser.expiresAt < new Date()) {
-      pendingUsers.delete(lowerEmail);
-      return NextResponse.json({ 
-        success: false, 
-        message: "Verification code has expired" 
-      });
-    }
-
-    // Create the verified user in database
-    await db.user.create({
+    // Update the existing user record instead of creating a new one
+    await db.user.update({
+      where: { email: pendingUser.email },
       data: {
-        email: lowerEmail,
-        fullName: pendingUser.fullName,
-        password: pendingUser.password,
         emailVerified: new Date(),
+        verifyCode: null,
+        verifyExpires: null
       }
     });
 
-    // Clean up pending user
-    pendingUsers.delete(lowerEmail);
-
-    return NextResponse.json({ 
-      success: true,
-      message: "Email verified successfully" 
-    });
+    // Redirect to sign-in page with success message
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?verified=true`
+    );
   } catch (error) {
     console.error("Verification error:", error);
-    return NextResponse.json({ 
-      success: false, 
-      message: "Verification failed" 
-    }, { status: 500 });
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=verification-failed`
+    );
   }
 } 

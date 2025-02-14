@@ -33,6 +33,7 @@ const itemAnimation = {
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -56,8 +57,8 @@ export function SignUpForm() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Verification code sent to your email");
-        setShowVerificationForm(true);
+        setEmailSent(true);
+        toast.success("Verification email sent");
       } else {
         setError(data.message || 'Registration failed');
         toast.error(data.message || 'Registration failed');
@@ -70,8 +71,22 @@ export function SignUpForm() {
     }
   };
 
-  if (showVerificationForm) {
-    return <VerificationForm email={formData.email} />;
+  if (emailSent) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center px-4 py-10 bg-gradient-to-br from-slate-50 to-slate-100">
+        <Card className="w-full max-w-md backdrop-blur-sm bg-white/80 shadow-xl border-0">
+          <CardHeader className="space-y-1 pb-8">
+            <CardTitle className="text-2xl font-bold text-center">
+              Check your email
+            </CardTitle>
+            <CardDescription className="text-center">
+              We've sent a verification link to {formData.email}.<br />
+              Please click the link to verify your email address.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
   }
 
   return (
