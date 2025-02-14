@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
@@ -7,14 +8,32 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { GithubIcon } from "lucide-react";
+import { GithubIcon, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+const container = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemAnimation = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
   const verified = searchParams.get('verified');
 
@@ -52,39 +71,54 @@ export function SignInForm() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-lg mx-auto">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your account to continue
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6">
-            <Button 
-              variant="outline" 
-              onClick={() => signIn("github", { callbackUrl: "/" })}
-              className="w-full"
-            >
-              <GithubIcon className="mr-2 h-4 w-4" />
-              Continue with GitHub
-            </Button>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
+    <div className="min-h-screen w-full flex items-center justify-center px-4 py-10 bg-gradient-to-br from-slate-50 to-slate-100">
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={container}
+        className="w-full max-w-lg"
+      >
+        <Card className="backdrop-blur-sm bg-white/80 shadow-xl border-0">
+          <CardHeader className="space-y-1 pb-8">
+            <motion.div variants={itemAnimation}>
+              <CardTitle className="text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700">
+                Welcome back
+              </CardTitle>
+              <CardDescription className="text-center text-base mt-2">
+                Sign in to your account to continue
+              </CardDescription>
+            </motion.div>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <motion.div variants={itemAnimation} className="space-y-6">
+              <Button 
+                variant="outline" 
+                onClick={() => signIn("github", { callbackUrl: "/" })}
+                className="w-full h-11 bg-white hover:bg-slate-50 hover:shadow-md transition-all duration-200"
+              >
+                <GithubIcon className="mr-2 h-5 w-5" />
+                Continue with GitHub
+              </Button>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with email
+                  </span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+            </motion.div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <motion.form 
+              variants={itemAnimation} 
+              onSubmit={handleSubmit} 
+              className="space-y-6"
+            >
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -92,40 +126,66 @@ export function SignInForm() {
                   placeholder="m@example.com"
                   required
                   autoComplete="email"
+                  className="h-11 bg-white/50 backdrop-blur-sm"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                />
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                    autoComplete="current-password"
+                    className="h-11 bg-white/50 backdrop-blur-sm pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full h-11 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300" 
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                  />
+                ) : (
+                  "Sign In"
+                )}
               </Button>
-            </form>
 
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link 
-                href="/sign-up" 
-                className="underline underline-offset-4 hover:text-primary"
+              <motion.div 
+                variants={itemAnimation}
+                className="text-center text-sm"
               >
-                Sign up
-              </Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                Don&apos;t have an account?{" "}
+                <Link 
+                  href="/sign-up" 
+                  className="text-primary-600 hover:text-primary-700 underline underline-offset-4"
+                >
+                  Sign up
+                </Link>
+              </motion.div>
+            </motion.form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 } 
