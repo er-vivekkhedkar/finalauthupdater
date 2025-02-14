@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { getUserProfile } from "@/lib/actions";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import ProfileView from "@/components/profile-view";
 
 const Page = async () => {
   const session = await auth();
@@ -20,11 +21,11 @@ const Page = async () => {
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Your Profile</h2>
-            <p className="text-gray-600">Update your information and manage your account settings.</p>
+            <h2 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700 hover:scale-[1.01] transition-transform duration-300">Your Profile</h2>
+            <p className="text-primary-600 hover:text-primary-700 transition-colors duration-300 animate-fade-in">Update your information and manage your account settings.</p>
           </div>
           {user ? (
-            <ProfileUpdater initialUser={user} />
+            <ProfileView user={user} />
           ) : (
             redirect("/sign-in")
           )}
