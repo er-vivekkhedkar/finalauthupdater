@@ -51,25 +51,25 @@ export function Footer() {
             <h3 className="font-semibold text-lg text-slate-900">Quick Links</h3>
             <div className="grid grid-cols-2 gap-2">
               <Link 
-                href="/about" 
+                href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
                 About
               </Link>
               <Link 
-                href="/privacy" 
+                href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
                 Privacy
               </Link>
               <Link 
-                href="/terms" 
+                href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
                 Terms
               </Link>
               <Link 
-                href="/contact" 
+                href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
                 Contact
@@ -82,7 +82,7 @@ export function Footer() {
             <h3 className="font-semibold text-lg text-slate-900">Connect</h3>
             <div className="flex space-x-4">
               <motion.a
-                href="https://github.com/yourusername"
+                href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -92,7 +92,7 @@ export function Footer() {
                 <Github className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="https://twitter.com/yourusername"
+                href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -102,7 +102,7 @@ export function Footer() {
                 <Twitter className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="https://linkedin.com/in/yourusername"
+                href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
