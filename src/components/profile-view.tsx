@@ -11,6 +11,10 @@ import { theme } from "@/lib/theme"
 import { ProfileCompletion } from "@/components/profile-completion"
 import { ActivityTimeline } from "@/components/activity-timeline"
 import { format } from "date-fns"
+import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
+import { useToast } from "@/hooks/use-toast";
+import { useRef } from 'react';
 
 interface ProfileViewProps {
   user: User & {
@@ -41,6 +45,8 @@ const itemAnimation = {
 
 export function ProfileView({ user }: ProfileViewProps) {
   const router = useRouter();
+  const { toast } = useToast();
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Mock activities - in production, fetch this from your database
   const activities = [
@@ -58,6 +64,83 @@ export function ProfileView({ user }: ProfileViewProps) {
     },
   ]
 
+  // Function to handle profile download
+  const handleDownload = async () => {
+    if (profileRef.current) {
+      try {
+        toast({
+          title: "Preparing download...",
+          description: "Creating your profile image",
+        });
+
+        const elements = profileRef.current.getElementsByClassName('text-transparent');
+        const originalStyles: string[] = [];
+        
+        Array.from(elements).forEach((el: Element) => {
+          originalStyles.push(el.className);
+          el.className = el.className.replace('text-transparent', 'text-primary-700');
+        });
+
+        const canvas = await html2canvas(profileRef.current);
+        
+        // Restore original styles
+        Array.from(elements).forEach((el: Element, i: number) => {
+          el.className = originalStyles[i] || el.className;
+        });
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const fileName = `${user.fullName?.replace(/\s+/g, '-') || 'profile'}-${format(new Date(), 'yyyy-MM-dd')}.png`;
+            saveAs(blob, fileName);
+            
+            toast({
+              title: "Success!",
+              description: "Profile image downloaded successfully",
+            });
+          }
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to download profile image",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // Function to handle profile sharing
+  const handleShare = async () => {
+    const shareData = {
+      title: `${user.fullName}'s Profile`,
+      text: `Check out ${user.fullName}'s profile on our platform!`,
+      url: `${window.location.origin}/shared-profile/${user.id}`,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared!",
+          description: "Profile shared successfully",
+        });
+      } else {
+        // Fallback for browsers that don't support native sharing
+        await navigator.clipboard.writeText(shareData.url);
+        toast({
+          title: "Link copied!",
+          description: "Profile link copied to clipboard",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to share profile",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <motion.div
       initial="hidden"
@@ -68,29 +151,39 @@ export function ProfileView({ user }: ProfileViewProps) {
       <ProfileCompletion user={user} />
 
       <Card className="backdrop-blur-sm bg-white/80 shadow-xl border-0">
-        {/* Quick Actions Bar - Made more touch-friendly */}
+        {/* Quick Actions Bar */}
         <motion.div 
           variants={itemAnimation}
           className="border-b border-primary-100 p-3 sm:p-4 flex justify-end space-x-1 sm:space-x-2"
         >
-          {[
-            { icon: Share2, title: 'Share Profile' },
-            { icon: Download, title: 'Download Data' },
-            { icon: Bell, title: 'Notifications' },
-          ].map(({ icon: Icon, title }) => (
-            <motion.button
-              key={title}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-3 sm:p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
-              title={title}
-            >
-              <Icon className="w-5 h-5" />
-            </motion.button>
-          ))}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleShare}
+            className="p-3 sm:p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors relative group"
+            title="Share Profile"
+          >
+            <Share2 className="w-5 h-5" />
+            <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-primary-700 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Share Profile
+            </span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDownload}
+            className="p-3 sm:p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors relative group"
+            title="Download Profile"
+          >
+            <Download className="w-5 h-5" />
+            <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-primary-700 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Download Profile
+            </span>
+          </motion.button>
         </motion.div>
 
-        <motion.div variants={itemAnimation} className="p-4 sm:p-8">
+        <motion.div ref={profileRef} variants={itemAnimation} className="p-4 sm:p-8">
           {/* Profile Image Section - Enhanced for mobile */}
           <motion.div 
             className="flex flex-col items-center space-y-4 mb-6 sm:mb-8"
@@ -109,7 +202,7 @@ export function ProfileView({ user }: ProfileViewProps) {
               </Avatar>
             </motion.div>
             <motion.h2 
-              className="text-2xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700"
+              className="text-2xl sm:text-2xl font-bold text-primary-700"
               variants={itemAnimation}
             >
               {user.fullName || 'Anonymous User'}

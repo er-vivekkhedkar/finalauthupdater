@@ -191,3 +191,18 @@ export async function updateUserProfile(data: UpdateUserData): Promise<User> {
 export async function someFunction(_data: UpdateUserData) {
   // Your logic
 }
+
+export async function getUserById(id: string) {
+  try {
+    const user = await db.user.findUnique({
+      where: { id },
+      include: {
+        profile: true,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+}
