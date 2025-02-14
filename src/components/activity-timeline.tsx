@@ -34,19 +34,20 @@ export function ActivityTimeline({ activities }: ActivityTimelineProps) {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-4"
+      className="space-y-3 sm:space-y-4"
     >
       <div className="flex items-center space-x-2 text-primary-600">
         <Activity className="w-5 h-5" />
         <h3 className="font-semibold">Recent Activity</h3>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {activities.map((activity) => (
           <motion.div
             key={activity.id}
             variants={item}
-            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-primary-50 transition-colors"
+            whileHover={{ scale: 1.02 }}
+            className="flex items-start space-x-3 p-3 rounded-lg bg-primary-50/50 hover:bg-primary-50 transition-all duration-300"
           >
             <div className="mt-1">
               <Clock className="w-4 h-4 text-primary-500" />

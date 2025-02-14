@@ -18,11 +18,15 @@ const Page = async () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
       <Navbar session={session} />
 
-      <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700 hover:scale-[1.01] transition-transform duration-300">Your Profile</h2>
-            <p className="text-primary-600 hover:text-primary-700 transition-colors duration-300 animate-fade-in">Update your information and manage your account settings.</p>
+      <main className="flex-grow container mx-auto py-8 sm:py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-0">
+          <div className="mb-6 sm:mb-8 fade-in">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700 transition-transform duration-300 hover:scale-[1.01]">
+              Your Profile
+            </h2>
+            <p className="text-sm sm:text-base text-primary-600/80 hover:text-primary-600 transition-colors duration-300">
+              Update your information and manage your account settings.
+            </p>
           </div>
           {user ? (
             <ProfileView user={user} />
