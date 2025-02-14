@@ -171,7 +171,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     }
   },
-  debug: true, // Enable debug logs
+  debug: process.env.NODE_ENV === 'development', // Only enable debug in development
   pages: {
     signIn: '/sign-in',
     signOut: '/sign-out',
