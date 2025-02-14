@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import type { User } from "@prisma/client"
 import { updateUserProfile } from "@/lib/actions"
+import { ProfileCompletion } from "@/components/profile-completion"
 
 const container = {
   hidden: { opacity: 0 },
@@ -232,6 +233,25 @@ export default function ProfileUpdater({ initialUser }: ProfileUpdaterProps) {
             </motion.div>
           </form>
         </CardContent>
+
+        {/* Profile completion only at the bottom */}
+        <motion.div 
+          variants={itemAnimation}
+          className="border-t border-primary-100 p-6"
+        >
+          <ProfileCompletion 
+            user={{
+              ...initialUser,
+              fullName: userData.fullName,
+              profile: {
+                ...initialUser.profile,
+                dateOfBirth: userData.dob ? new Date(userData.dob) : null,
+                gender: userData.gender,
+                bio: userData.bio
+              }
+            }} 
+          />
+        </motion.div>
       </Card>
     </motion.div>
   );

@@ -30,6 +30,7 @@ model User {
   tokens         Token[]
   verifications  Verification[]
   verifyCodes    VerifyCode[]
+  activities     Activity[]
 
   @@map("users")
 }
@@ -139,4 +140,15 @@ model VerifyCode {
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("verify_codes")
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  description String
+  timestamp   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("activities")
 }

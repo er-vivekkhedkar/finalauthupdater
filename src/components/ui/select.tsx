@@ -6,7 +6,37 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Select = SelectPrimitive.Root
+interface SelectOption {
+  value: string
+  label: string
+  icon?: React.ComponentType<{ className?: string }>
+}
+
+interface CustomSelectProps {
+  options: SelectOption[]
+  defaultValue?: string
+  onChange: (value: string) => void
+  className?: string
+}
+
+const CustomSelect = ({ options, defaultValue, onChange, className }: CustomSelectProps) => (
+  <SelectPrimitive.Root defaultValue={defaultValue} onValueChange={onChange}>
+    <SelectPrimitive.Trigger className={cn("flex items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm", className)}>
+      <SelectPrimitive.Value />
+      <SelectPrimitive.Icon>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+    <SelectPrimitive.Content>
+      {options.map((option) => (
+        <SelectPrimitive.Item key={option.value} value={option.value}>
+          {option.icon && <option.icon className="mr-2 h-4 w-4" />}
+          {option.label}
+        </SelectPrimitive.Item>
+      ))}
+    </SelectPrimitive.Content>
+  </SelectPrimitive.Root>
+);
 
 const SelectGroup = SelectPrimitive.Group
 
@@ -146,7 +176,7 @@ const SelectSeparator = React.forwardRef<
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
 export {
-  Select,
+  CustomSelect,
   SelectGroup,
   SelectValue,
   SelectTrigger,

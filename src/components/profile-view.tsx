@@ -1,13 +1,16 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { User as UserIcon } from "lucide-react"
+import { User as UserIcon, Share2, Download, Bell, Shield, Settings } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import type { User } from "@prisma/client"
 import { theme } from "@/lib/theme"
+import { ProfileCompletion } from "@/components/profile-completion"
+import { ActivityTimeline } from "@/components/activity-timeline"
+import { format } from "date-fns"
 
 interface ProfileViewProps {
   user: User & {
@@ -39,14 +42,63 @@ const itemAnimation = {
 export function ProfileView({ user }: ProfileViewProps) {
   const router = useRouter();
 
+  // Mock activities - in production, fetch this from your database
+  const activities = [
+    {
+      id: '1',
+      type: 'profile' as const,
+      description: 'Updated profile information',
+      timestamp: new Date(),
+    },
+    {
+      id: '2',
+      type: 'update' as const,
+      description: 'Changed profile picture',
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    },
+  ]
+
   return (
     <motion.div
       initial="hidden"
       animate="show"
       variants={container}
-      className="w-full max-w-4xl mx-auto"
+      className="w-full max-w-4xl mx-auto space-y-6"
     >
+      <ProfileCompletion user={user} />
+
       <Card className="backdrop-blur-sm bg-white/80 shadow-xl border-0 mx-4 sm:mx-0">
+        {/* Add Quick Actions Bar */}
+        <motion.div 
+          variants={itemAnimation}
+          className="border-b border-primary-100 p-4 flex justify-end space-x-2"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
+            title="Share Profile"
+          >
+            <Share2 className="w-5 h-5" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
+            title="Download Data"
+          >
+            <Download className="w-5 h-5" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors"
+            title="Notifications"
+          >
+            <Bell className="w-5 h-5" />
+          </motion.button>
+        </motion.div>
+
         <motion.div variants={itemAnimation} className="p-4 sm:p-8">
           {/* Profile Image Section */}
           <motion.div 
@@ -138,6 +190,44 @@ export function ProfileView({ user }: ProfileViewProps) {
               Edit Profile
             </Button>
           </motion.div>
+        </motion.div>
+
+        {/* Add Additional Features Section */}
+        <motion.div 
+          variants={container}
+          className="border-t border-primary-100 p-6 grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <motion.div
+            variants={itemAnimation}
+            whileHover={{ scale: 1.02 }}
+            className="p-4 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center space-x-4"
+          >
+            <Shield className="w-8 h-8 text-primary-600" />
+            <div>
+              <h3 className="font-semibold text-primary-700">Security Check</h3>
+              <p className="text-sm text-primary-600">Review your account security</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={itemAnimation}
+            whileHover={{ scale: 1.02 }}
+            className="p-4 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center space-x-4"
+          >
+            <Settings className="w-8 h-8 text-primary-600" />
+            <div>
+              <h3 className="font-semibold text-primary-700">Preferences</h3>
+              <p className="text-sm text-primary-600">Customize your experience</p>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Add Activity Timeline */}
+        <motion.div 
+          variants={itemAnimation}
+          className="border-t border-primary-100 p-6"
+        >
+          <ActivityTimeline activities={activities} />
         </motion.div>
       </Card>
     </motion.div>
