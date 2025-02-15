@@ -1,14 +1,16 @@
-Stack Use :T3 Stack
-NextJS 14
-TailwindCSS
-Shadcn UI
-NEXT AUTH
-POSTGRESQL
-NODE MAILER
-PRISMA ORM
+Tech Stack & Components Use :
+- T3 Stack
+- NextJS 14
+- TailwindCSS
+- Shadcn UI
+- NEXT AUTH
+- POSTGRESQL
+- NODE MAILER
+- PRISMA ORM
 
 
 .ENV FILE 
+-
 EMAIL_USER=
 EMAIL_APP_PASSWORD=
 
