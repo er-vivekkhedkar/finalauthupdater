@@ -23,14 +23,14 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     
-    // Create pending user and get verification token
+    // Store in temporary verification table
     const token = await createPendingUser({
       email: lowerEmail,
       password: hashedPassword,
       fullName
     });
 
-    // Send verification email
+    // Send verification email immediately
     await sendVerificationEmail(lowerEmail, token);
 
     return NextResponse.json({ 

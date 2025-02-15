@@ -64,23 +64,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!credentials?.email || !credentials?.password) return null;
           
           const user = await db.user.findUnique({
-            where: { email: credentials.email.toString().toLowerCase() }
+            where: { email: (credentials.email as string).toLowerCase() }
           });
 
-          if (!user?.password) return null;
+          if (!user?.password || !user.emailVerified) return null;
 
           const passwordMatch = await bcrypt.compare(
             credentials.password.toString(),
             user.password
           );
 
-          if (passwordMatch) {
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.fullName,
-            };
-          }
+          if (passwordMatch) return user;
           return null;
         } catch (error) {
           console.error("Auth error:", error);

@@ -14,36 +14,27 @@ export async function GET(req: Request) {
       );
     }
 
-    const pendingUser = await getPendingUserByToken(token);
+    const pendingData = await getPendingUserByToken(token);
 
-    if (!pendingUser) {
+    if (!pendingData?.user) {
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=invalid-token`
       );
     }
 
-    // Check if user already exists and is verified
-    const existingUser = await db.user.findUnique({
-      where: { email: pendingUser.email }
-    });
-
-    if (existingUser?.emailVerified) {
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=already-verified`
-      );
-    }
-
-    // Update the existing user record instead of creating a new one
+    // Update user to verified status
     await db.user.update({
-      where: { email: pendingUser.email },
+      where: { id: pendingData.user.id },
       data: {
-        emailVerified: new Date(),
-        verifyCode: null,
-        verifyExpires: null
+        emailVerified: new Date()
       }
     });
 
-    // Redirect to sign-in page with success message
+    // Clean up verification code
+    await db.verifyCode.delete({
+      where: { id: pendingData.id }
+    });
+
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/sign-in?verified=true`
     );

@@ -1,16 +1,28 @@
 // This file handles sending emails using nodemailer
 import nodemailer from 'nodemailer';
 
+// Create reusable transporter with connection pooling
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
   secure: false,
+  pool: true, // Use pooled connections
+  maxConnections: 3, // Maintain up to 3 connections
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD  // Use app password, not regular password
+    pass: process.env.EMAIL_APP_PASSWORD
   },
   tls: {
     rejectUnauthorized: false
+  }
+});
+
+// Verify connection configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log("Email service error:", error);
+  } else {
+    console.log("Email server is ready");
   }
 });
 
@@ -22,6 +34,7 @@ export async function sendVerificationEmail(email: string, token: string) {
     from: `"Auth Verification" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Verify Your Email',
+    priority: 'high' as const, // Fix type error
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333; text-align: center;">Verify Your Email Address</h2>
