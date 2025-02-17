@@ -4,7 +4,7 @@ import { SignOut } from "./sign-out";
 import type { Session } from "next-auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -98,7 +98,7 @@ export function Navbar({ session }: NavbarProps) {
                 animate={titleAnimation.animate}
                 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-400 to-primary-600"
               >
-                Profile App
+                QuickChat AI
               </motion.div>
 
               {/* Moving line */}
@@ -140,6 +140,23 @@ export function Navbar({ session }: NavbarProps) {
                   whileHover="hover"
                 >
                   <Link 
+                    href="/profile-view"
+                    className="text-slate-600 hover:text-primary-600 transition-colors relative group"
+                  >
+                    Profile
+                    <motion.span 
+                      className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 group-hover:w-full transition-all duration-300"
+                      initial={{ width: 0 }}
+                      whileHover={{ width: "100%" }}
+                    />
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  variants={navItemHover}
+                  whileHover="hover"
+                >
+                  <Link 
                     href="/profile/edit"
                     className="text-slate-600 hover:text-primary-600 transition-colors relative group"
                   >
@@ -158,10 +175,23 @@ export function Navbar({ session }: NavbarProps) {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Avatar className="h-8 w-8 ring-2 ring-primary-100 hover:ring-primary-200 transition-all duration-300">
-                      <AvatarImage src={session.user?.image || undefined} />
-                      <AvatarFallback className="bg-primary-50 text-primary-600">
-                        {session.user?.name?.charAt(0) || 'U'}
-                      </AvatarFallback>
+                      {session?.user?.image ? (
+                        <AvatarImage 
+                          src={session.user.image}
+                          alt={session.user.name || 'User profile'} 
+                          className="object-cover w-full h-full"
+                          onError={(e) => {
+                            // Fallback to User icon if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null; // Prevent infinite loop
+                            target.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-primary-50">
+                          <User className="h-4 w-4 text-primary-600" />
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </motion.div>
                   <SignOut />
@@ -232,11 +262,23 @@ export function Navbar({ session }: NavbarProps) {
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
                   <Link 
-                    href="/"
+                    href="/dashboard"
                     className="block px-4 py-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ x: 10 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Link 
+                    href="/profile-view"
+                    className="block px-4 py-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Profile
                   </Link>
                 </motion.div>
                 <motion.div
@@ -255,10 +297,23 @@ export function Navbar({ session }: NavbarProps) {
                   <div className="flex items-center space-x-3">
                     <motion.div whileHover={{ scale: 1.1 }}>
                       <Avatar className="h-8 w-8 ring-2 ring-primary-100">
-                        <AvatarImage src={session.user?.image || undefined} />
-                        <AvatarFallback className="bg-primary-50 text-primary-600">
-                          {session.user?.name?.charAt(0) || 'U'}
-                        </AvatarFallback>
+                        {session?.user?.image ? (
+                          <AvatarImage 
+                            src={session.user.image}
+                            alt={session.user.name || 'User profile'} 
+                            className="object-cover w-full h-full"
+                            onError={(e) => {
+                              // Fallback to User icon if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null; // Prevent infinite loop
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary-50">
+                            <User className="h-4 w-4 text-primary-600" />
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                     </motion.div>
                     <span className="text-slate-600">{session.user?.name}</span>

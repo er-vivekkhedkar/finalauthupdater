@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Github, Twitter, Linkedin, Heart } from "lucide-react";
+import { Github, Twitter, Linkedin, Heart, Bot } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0, y: 20 },
@@ -37,24 +37,25 @@ export function Footer() {
           <motion.div variants={itemAnimation} className="space-y-4">
             <Link 
               href="/" 
-              className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700"
+              className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700 flex items-center gap-2"
             >
-              Profile App
+              <Bot className="w-6 h-6" />
+              QuickChat AI
             </Link>
             <p className="text-slate-600 max-w-xs">
-              Manage your profile with ease and security. Built with modern technologies for the best user experience.
+              Experience intelligent conversations powered by Gemini AI. Fast, reliable, and always ready to help.
             </p>
           </motion.div>
 
           {/* Quick Links */}
           <motion.div variants={itemAnimation} className="space-y-4">
-            <h3 className="font-semibold text-lg text-slate-900">Quick Links</h3>
+            <h3 className="font-semibold text-lg text-slate-900">Resources</h3>
             <div className="grid grid-cols-2 gap-2">
               <Link 
                 href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
-                About
+                API Docs
               </Link>
               <Link 
                 href="/" 
@@ -72,7 +73,7 @@ export function Footer() {
                 href="/" 
                 className="text-slate-600 hover:text-primary-600 transition-colors"
               >
-                Contact
+                Support
               </Link>
             </div>
           </motion.div>
@@ -82,7 +83,7 @@ export function Footer() {
             <h3 className="font-semibold text-lg text-slate-900">Connect</h3>
             <div className="flex space-x-4">
               <motion.a
-                href="https://github.com"
+                href="https://github.com/yourusername"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -92,7 +93,7 @@ export function Footer() {
                 <Github className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="https://twitter.com"
+                href="https://twitter.com/yourusername"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -102,7 +103,7 @@ export function Footer() {
                 <Twitter className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="https://linkedin.com"
+                href="https://linkedin.com/in/yourusername"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -125,7 +126,7 @@ export function Footer() {
               className="flex items-center space-x-2 text-slate-600"
               whileHover={{ scale: 1.02 }}
             >
-              <span>Made with</span>
+              <span>Powered by</span>
               <motion.div
                 animate={{ 
                   scale: [1, 1.2, 1],
@@ -137,15 +138,15 @@ export function Footer() {
                   repeatDelay: 1
                 }}
               >
-                <Heart className="w-4 h-4 text-red-500 fill-current" />
+                <Bot className="w-4 h-4 text-primary-500" />
               </motion.div>
-              <span>by Your Name</span>
+              <span>Gemini AI</span>
             </motion.div>
             <motion.p 
               variants={itemAnimation}
               className="text-slate-600"
             >
-              © {currentYear} Profile App. All rights reserved.
+              © {currentYear} QuickChat AI. All rights reserved.
             </motion.p>
           </div>
         </motion.div>

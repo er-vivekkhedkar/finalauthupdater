@@ -82,6 +82,10 @@ export function SignUpForm() {
             <CardDescription className="text-center">
               We've sent a verification link to {formData.email}.<br />
               Please click the link to verify your email address.
+              If you don’t receive the verification email,<br />
+              Please check your spam box.
+
+
             </CardDescription>
           </CardHeader>
         </Card>
