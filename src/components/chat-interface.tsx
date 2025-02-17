@@ -420,7 +420,7 @@ export function ChatInterface() {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="block sm:hidden text-center mt-4 mb-3"
+                className="block sm:hidden text-center mt-2 mb-3"
               >
                 <h2 className="text-xl font-semibold text-primary-600 mb-1">Welcome to QuickChat</h2>
                 <p className="text-sm text-gray-600">Your AI coding assistant</p>
@@ -429,7 +429,7 @@ export function ChatInterface() {
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                className="relative flex flex-col items-center justify-center space-y-4 min-h-0 sm:min-h-[30vh] mt-2 sm:mt-4"
+                className="relative flex flex-col items-center justify-center space-y-4 min-h-0 sm:min-h-[30vh] mt-0 sm:mt-4"
               >
                 <motion.div 
                   className="relative mt-4 hidden sm:block"
