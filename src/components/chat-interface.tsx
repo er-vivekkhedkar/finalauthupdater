@@ -96,6 +96,7 @@ export function ChatInterface() {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [hoveredSuggestion, setHoveredSuggestion] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const placeholders = [
     "Ask me about coding problems...",
@@ -143,6 +144,21 @@ export function ChatInterface() {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const scrollToBottom = () => {
@@ -398,12 +414,12 @@ export function ChatInterface() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="w-full h-full flex flex-col justify-start max-w-3xl mx-auto px-2 sm:px-4 overflow-y-auto scrollbar-none"
+              className="w-full flex flex-col justify-start max-w-3xl mx-auto px-2 sm:px-4 overflow-y-auto scrollbar-none"
             >
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                className="relative flex flex-col items-center justify-center space-y-4 min-h-0 sm:min-h-[30vh] mt-4 sm:mt-4"
+                className="relative flex flex-col items-center justify-center space-y-4 min-h-0 sm:min-h-[30vh] mt-2 sm:mt-4"
               >
                 <motion.div 
                   className="relative mt-4 hidden sm:block"
@@ -475,7 +491,7 @@ export function ChatInterface() {
                     <Input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={window.innerWidth < 640 ? "Ask me anything..." : placeholders[currentPlaceholder]}
+                      placeholder={isMobile ? "Ask me anything..." : placeholders[currentPlaceholder]}
                       className="h-12 sm:h-14 px-4 sm:px-6 pr-[90px] sm:pr-[100px] rounded-xl text-base sm:text-lg bg-white/95 shadow-lg border-primary-200/50 transition-all group-hover:shadow-xl focus:ring-2 focus:ring-primary-500/50 relative z-10"
                       autoComplete="off"
                       type="text"
@@ -507,7 +523,7 @@ export function ChatInterface() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 w-full max-w-2xl mx-auto mt-3 px-2 sm:px-4 pb-4"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 w-full max-w-2xl mx-auto mt-2 sm:mt-3 px-2 sm:px-4 pb-2 sm:pb-4"
               >
                 {suggestions.map((item, index) => (
                   <motion.div
@@ -638,7 +654,7 @@ export function ChatInterface() {
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={window.innerWidth < 640 ? "Type a message..." : placeholders[currentPlaceholder]}
+                    placeholder={isMobile ? "Type a message..." : placeholders[currentPlaceholder]}
                     className="h-10 sm:h-12 px-3 sm:px-4 pr-[40px] sm:pr-[100px] rounded-xl 
                               text-sm sm:text-base bg-white/95 shadow-md border-primary-200/50 
                               transition-all focus:ring-2 focus:ring-primary-500/50"
