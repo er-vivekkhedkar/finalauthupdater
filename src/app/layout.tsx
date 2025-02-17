@@ -18,8 +18,8 @@ const poppins = Poppins({
 });
 
 const metadata: Metadata = {
-  title: "Profile Updater",
-  description: "Update your profile information with ease.",
+  title: "QuickChatAI",
+  description: "QuickChatAI is a chatbot that can help you with your questions.",
 };
 
 type LayoutProps = {
