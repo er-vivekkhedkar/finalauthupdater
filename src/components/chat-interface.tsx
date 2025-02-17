@@ -137,6 +137,8 @@ export function ChatInterface() {
   ];
 
   useEffect(() => {
+    if (window.innerWidth < 640) return;
+
     const interval = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
@@ -401,10 +403,10 @@ export function ChatInterface() {
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                className="relative flex flex-col items-center justify-center space-y-4 min-h-[30vh]"
+                className="relative flex flex-col items-center justify-center space-y-4 min-h-0 sm:min-h-[30vh] mt-4 sm:mt-4"
               >
                 <motion.div 
-                  className="relative mt-4"
+                  className="relative mt-4 hidden sm:block"
                   initial={{ y: -20 }}
                   animate={{ y: 0 }}
                 >
@@ -461,7 +463,7 @@ export function ChatInterface() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="w-full max-w-2xl mx-auto mt-2 sm:mt-4 px-2 sm:px-4"
+                className="w-full max-w-2xl mx-auto px-2 sm:px-4"
               >
                 <form onSubmit={handleSubmit} className="relative group">
                   <motion.div
@@ -473,14 +475,16 @@ export function ChatInterface() {
                     <Input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={placeholders[currentPlaceholder]}
-                      className="h-12 sm:h-14 px-4 sm:px-6 pr-[100px] rounded-xl text-base sm:text-lg bg-white/95 shadow-lg border-primary-200/50 transition-all group-hover:shadow-xl focus:ring-2 focus:ring-primary-500/50 relative z-10"
+                      placeholder={window.innerWidth < 640 ? "Ask me anything..." : placeholders[currentPlaceholder]}
+                      className="h-12 sm:h-14 px-4 sm:px-6 pr-[90px] sm:pr-[100px] rounded-xl text-base sm:text-lg bg-white/95 shadow-lg border-primary-200/50 transition-all group-hover:shadow-xl focus:ring-2 focus:ring-primary-500/50 relative z-10"
                       autoComplete="off"
+                      type="text"
+                      inputMode="text"
                     />
                     <Button
                       type="submit"
                       disabled={!input.trim()}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600 hover:bg-primary-700 h-10 sm:h-12 px-4 sm:px-6 z-10"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600 hover:bg-primary-700 h-9 sm:h-12 px-3 sm:px-6 z-10"
                     >
                       <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Button>
@@ -634,12 +638,13 @@ export function ChatInterface() {
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={placeholders[currentPlaceholder]}
-                    className="h-10 sm:h-12 px-3 sm:px-4 pr-[45px] sm:pr-[100px] rounded-xl 
+                    placeholder={window.innerWidth < 640 ? "Type a message..." : placeholders[currentPlaceholder]}
+                    className="h-10 sm:h-12 px-3 sm:px-4 pr-[40px] sm:pr-[100px] rounded-xl 
                               text-sm sm:text-base bg-white/95 shadow-md border-primary-200/50 
-                              transition-all focus:ring-2 focus:ring-primary-500/50
-                              overflow-x-hidden text-ellipsis whitespace-nowrap"
+                              transition-all focus:ring-2 focus:ring-primary-500/50"
                     disabled={isLoading}
+                    type="text"
+                    inputMode="text"
                   />
                   <Button
                     type="submit"
