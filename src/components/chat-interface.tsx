@@ -416,6 +416,16 @@ export function ChatInterface() {
               animate={{ opacity: 1 }}
               className="w-full flex flex-col justify-start max-w-3xl mx-auto px-2 sm:px-4 overflow-y-auto scrollbar-none"
             >
+              {/* Mobile Welcome Message */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="block sm:hidden text-center mt-4 mb-3"
+              >
+                <h2 className="text-xl font-semibold text-primary-600 mb-1">Welcome to QuickChat</h2>
+                <p className="text-sm text-gray-600">Your AI coding assistant</p>
+              </motion.div>
+
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
