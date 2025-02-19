@@ -279,7 +279,7 @@ export function Navbar({ session }: NavbarProps) {
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
                   <Link 
-                    href="/dashboard"
+                    href="/"
                     className="block px-4 py-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300"
                     onClick={() => setIsMenuOpen(false)}
                   >
