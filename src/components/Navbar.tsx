@@ -169,6 +169,23 @@ export function Navbar({ session }: NavbarProps) {
                   </Link>
                 </motion.div>
 
+                <motion.div
+                  variants={navItemHover}
+                  whileHover="hover"
+                >
+                  <Link 
+                    href="/chat"
+                    className="text-slate-600 hover:text-primary-600 transition-colors relative group"
+                  >
+                    Chat with AI
+                    <motion.span 
+                      className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 group-hover:w-full transition-all duration-300"
+                      initial={{ width: 0 }}
+                      whileHover={{ width: "100%" }}
+                    />
+                  </Link>
+                </motion.div>
+
                 <div className="flex items-center space-x-4">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
@@ -291,6 +308,18 @@ export function Navbar({ session }: NavbarProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Edit Profile
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ x: 10 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Link 
+                    href="/chat"
+                    className="block px-4 py-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Chat with AI
                   </Link>
                 </motion.div>
                 <div className="px-4 py-2 flex items-center justify-between bg-primary-50/50 rounded-lg">

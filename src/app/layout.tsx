@@ -5,10 +5,9 @@ import { ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "sonner";
 import { Toaster as ReactHotToastToaster } from 'react-hot-toast';
-
-
-
-
+import { SessionProvider } from "next-auth/react";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
@@ -25,22 +24,30 @@ const metadata: Metadata = {
 type LayoutProps = {
   children: ReactNode;
 };
-const Layout = ({ children }: LayoutProps) => {
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
-        <main className="flex items-center justify-center bg-gray-100">
-          <div className="bg-white rounded-lg w-full">
-            {children}
-          </div>
-        </main>
-        <Toaster />
-        <SonnerToaster />
-        <ReactHotToastToaster />
+        <SessionProvider session={session}>
+          <main className="flex items-center justify-center bg-gray-100">
+            <div className="bg-white rounded-lg w-full">
+              {children}
+            </div>
+          </main>
+          <Toaster />
+          <SonnerToaster />
+          <ReactHotToastToaster />
+        </SessionProvider>
       </body>
     </html>
   );
-};
+}
 
 export { metadata };
-export default Layout;
