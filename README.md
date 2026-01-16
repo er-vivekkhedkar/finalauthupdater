@@ -26,3 +26,6 @@ AUTH_TRUST_HOST=true
 # Next Auth Discord Provider
 AUTH_DISCORD_ID=""
 AUTH_DISCORD_SECRET=""
+
+
+
