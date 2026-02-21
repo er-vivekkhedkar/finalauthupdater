@@ -10,7 +10,7 @@ Tech Stack & Components Use :
 
 
 .ENV FILE 
--
+
 EMAIL_USER=
 EMAIL_APP_PASSWORD=
 
